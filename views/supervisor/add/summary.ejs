@@ -38,9 +38,9 @@
                                     emp
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-                                    <li><a class="dropdown-item" href="#">Change Password</a></li>
+                                    <li><a class="dropdown-item" href="/supervisor/employee_add">Add Employees</a></li>
+                                    <li><a class="dropdown-item" href="/supervisor/employees">View Employees</a></li>
                                     <li><a class="dropdown-item" href="/supervisor/emp_work_hours">Work Hours</a></li>
-                                    <li><a class="dropdown-item" href="#">Sign out</a></li>
                                 </ul>
                         </li>
                       </ul>
@@ -75,59 +75,43 @@
                 <% if (messages.success) { %>
                     <p class="alert alert-success mt-4"><%- messages.success %></p>
                 <% } %>
-                <div class="container-fluid">
-                    <a href="/supervisor/summary/<%= emp[0].emp_id %> ">Test</a>
-                    <table class="table table-striped">
-                        <thead style="font-size: 1.6vw;">
-                          <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Work Date</th>
-                            <th scope="col">Start Time</th>
-                            <th scope="col">End Time</th>
-                            <th scope="col">Total</th>
-                            <th scope="col">Base Hours</th>
-                            <th scope="col">OverTime</th>
-                            <th scope="col">isPresent</th>
-                            <th scope="col">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody style="font-size: 1.5vw;">
-                            <% if(emp.length){ for(var i=0; i< emp.length; i++) { %>
-                                <tr>
-                                  <td scope="row"><%= emp[i].work_id %></td>
-                                  <td scope="row"><%= emp[i].emp_fn + ' ' + emp[i].emp_ln %></td>
-                                  <td scope="row"><%= emp[i].work_date.toDateString() %></td>
-                                  <td scope="row"><%= emp[i].start_time %></td>
-                                  <td scope="row"><%= emp[i].end_time %></td>
-                                  <td scope="row"><%= emp[i].hours %></td>
-                                  <td scope="row"><%= emp[i].dept_base_hours %></td>
-                                  <% if(emp[i].overtime_hours <= 0) { %>
-                                    <td scope="row">N/A</td> 
-                                  <% } else { %>
-                                    <td scope="row"><%= emp[i].overtime_hours %></td>
-                                  <% } %> 
-                                  <td scope="row"><%= emp[i].at_work %></td>
-                                  
-                                  <td scope="row">
-                                    <a href="/supervisor/emp_hour_details/<%= emp[i].work_id %>">
-                                      <i class="fa-solid fa-file-pen"></i>
-                                    </a>
-                                    <a href="/admin/delete/<%= emp[i].id %>">
-                                      <i class="fa-solid fa-trash-can"></i>
-                                    </a>
-                                  </td>
-                                </tr>
-                                <% } }else { %>
-                                <tr>
-                                  <th scope="row" colspan="5">No Records Found</th>
-                                </tr>
-                            <% } %>                            
-                        </tbody>
-                    </table>
+                <div class=" container text-center">
+                    <form action="/supervisor/salary" method="post">
+                      <div class="row">
+                        <div class="form-outline mb-4 col">
+                          <input type="text" class="form-control" value="<%= emp.emp_id %>" name="emp_id" readonly/>
+                          <label class="form-label" for="emp_id">Employee ID</label>
+                        </div>
+                        <div class="form-outline mb-4 col">
+                          <input type="text" class="form-control" value="<%= emp.total_worked %>" name="total_hours"/>
+                          <label class="form-label" for="total_hours">Total Hours Worked per Cycle</label>
+                        </div>
+                        <div class="form-outline mb-4 col">
+                          <input type="text" class="form-control" value="<%= emp.total_overtime %>" name="overtime_hours"/>
+                          <label class="form-label" for="overtime_hours">Total OverTime</label>
+                        </div>
+                        <div class="form-group form-outline mb-4 col">
+                          <select class="select form-control" name="weeks">
+                              <% for( let i = 1; i < 53; i++ ) { %>
+                                <option value="Week <%= i %>"><%= i %></option>
+                              <% } %>
+                          </select>
+                          <span class="select-arrow"></span>
+                          <label class="form-label" for="weeks">Week</label>
+                        </div>
+                        <div class="col">
+                          <button type="submit" class="btn btn-primary btn-md">Submit</button>
+                        </div>
+                      </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div> 
 </body>
 </html>
+
+
+
+
+

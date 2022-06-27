@@ -89,7 +89,7 @@ router.post('/add', (req, res) => {
             
         };
         console.log(data)
-        conn.query('INSERT INTO employees SET ? WHERE ', data, (err, results) => {
+        conn.query('INSERT INTO employees SET ?', data, (err, results) => {
             if(err) {
                 console.log(err)
                 req.flash('error', 'Employee was not added Successfully');
@@ -173,7 +173,7 @@ router.get('/emp_work_hours/:emp_id', (req, res) => {
 
         department = req.session.dept;
 
-        conn.query('SELECT emp.emp_fn, emp.emp_ln, truncate((TIMEDIFF(wh.end_time, wh.start_time)/10000), 2) AS hours, emp.id AS emp_id, wh.*, wh.id AS work_id, dept.*, dept.id AS dept_id, truncate(SUM(hours_worked), 2) AS total_worked, truncate(SUM(overtime_hours), 2) AS total_overtime FROM employees emp, work_hours wh, departments dept WHERE emp.emp_dept = dept.id AND wh.emp_id = emp.id AND dept.dept_name = ? AND wh.emp_id =' + req.params.emp_id, department,(err, results) => {
+        conn.query('SELECT truncate((TIMEDIFF(wh.end_time, wh.start_time)/10000), 2) AS hours, emp.emp_fn, emp.emp_ln, emp.id AS emp_id, wh.*, wh.id AS work_id, dept.*, dept.id AS dept_id FROM employees emp, work_hours wh, departments dept WHERE emp.emp_dept = dept.id AND wh.emp_id = emp.id AND dept.dept_name = ? AND wh.emp_id =' + req.params.emp_id, department,(err, results) => {
             if(err) {
                 console.log(err)
                 res.render('supervisor/hours', {
@@ -229,7 +229,7 @@ router.get('/emp_hour_details/:work_id', (req, res) => {
 });
 
 // Post Overtime Update
-router.post('/update_overtime', (req, res) => {
+router.post('/update_overtime/:id', (req, res) => {
     if(req.session.loggedin === true && req.session.position === "Supervisor") {
         let data = {
            start_time : req.body.start_time,
@@ -239,7 +239,7 @@ router.post('/update_overtime', (req, res) => {
         }
 
         console.log(data)
-        conn.query('UPDATE work_hours SET ?', data, (err, results) => {
+        conn.query('UPDATE work_hours wh SET ? WHERE wh.id=' + req.params.id, data, (err, results) => {
             if(err) {
                 console.log(err)
                 req.flash('error', 'Did Not Update')
@@ -247,6 +247,33 @@ router.post('/update_overtime', (req, res) => {
             } else {
                 req.flash('success', 'Updated Successfully')
                 res.redirect('/supervisor/employees')
+            }
+        });
+    } else {
+        req.flash('error', 'Please Sign In')
+        res.redirect('/login/supervisor')
+    }
+});
+
+// Get Summary
+router.get('/summary/:emp_id', (req, res) => {
+    department = req.session.dept;
+    if(req.session.loggedin === true && req.session.position === "Supervisor") {
+        conn.query('SELECT emp.id AS emp_id, truncate(SUM(hours_worked - overtime_hours), 2) AS total_worked, truncate(SUM(overtime_hours), 2) AS total_overtime FROM employees emp, work_hours wh, departments dept WHERE emp.emp_dept = dept.id AND wh.emp_id = emp.id AND dept.dept_name = ? AND wh.emp_id =' + req.params.emp_id, department,(err, results) => {
+            console.log(err)
+            console.log(results)
+            if(err) {
+                res.render('supervisor/add/summary', {
+                    title : 'Summary | Work Hours',
+                    emp : '',
+                    my_session : req.session
+                })
+            } else {
+                res.render('supervisor/add/summary', {
+                    title : 'Summary | Work Hours',
+                    emp : results[0],
+                    my_session : req.session
+                })
             }
         });
     } else {

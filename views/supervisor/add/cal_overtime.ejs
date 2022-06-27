@@ -99,7 +99,7 @@
                                         </div>
                                     </div>
                                     
-                                    <form class="px-md-2" action="/supervisor/update_overtime" method="post">
+                                    <form class="px-md-2" action="/supervisor/update_overtime/<%= emp.work_id %>" method="post">
                                         <div class="row">
                                             <div class="form-outline mb-4 col">
                                               <input type="text" class="form-control" value="<%= emp.work_date.toDateString() %>" readonly/>
