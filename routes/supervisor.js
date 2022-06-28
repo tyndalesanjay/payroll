@@ -23,7 +23,7 @@ router.get('/employees', (req, res) => {
 
         conn.query(`SELECT emp.*, emp.id AS emp_id, dept.*, dept.id AS dept_id, post.*,
          post.id AS post_id FROM employees emp, departments dept, positions post WHERE 
-         emp.emp_dept = dept.id AND emp.emp_post = post.id AND dept.dept_name = ?`, department, (err, results) => {
+         emp.emp_dept = dept.id AND emp.emp_post = post.id AND dept.dept_name = ? ORDER BY emp_id`, department, (err, results) => {
             if(err) {
                 console.log(err)
                 res.render('supervisor/view/view_employee', {
@@ -173,7 +173,7 @@ router.get('/emp_work_hours/:emp_id', (req, res) => {
 
         department = req.session.dept;
 
-        conn.query('SELECT truncate((TIMEDIFF(wh.end_time, wh.start_time)/10000), 2) AS hours, emp.emp_fn, emp.emp_ln, emp.id AS emp_id, wh.*, wh.id AS work_id, dept.*, dept.id AS dept_id FROM employees emp, work_hours wh, departments dept WHERE emp.emp_dept = dept.id AND wh.emp_id = emp.id AND dept.dept_name = ? AND wh.emp_id =' + req.params.emp_id, department,(err, results) => {
+        conn.query('SELECT truncate((TIMEDIFF(wh.end_time, wh.start_time)/10000), 2) AS hours, emp.emp_fn, emp.emp_ln, emp.id AS emp_id, wh.*, wh.id AS work_id, dept.*, dept.id AS dept_id FROM employees emp, work_hours wh, departments dept WHERE emp.emp_dept = dept.id AND wh.emp_id = emp.id AND dept.dept_name = ? AND wh.work_date BETWEEN CURDATE()-5 AND CURDATE() - INTERVAL 1 day AND wh.emp_id =' + req.params.emp_id, department,(err, results) => {
             if(err) {
                 console.log(err)
                 res.render('supervisor/hours', {
@@ -188,6 +188,7 @@ router.get('/emp_work_hours/:emp_id', (req, res) => {
                     my_session : req.session
                 })
             }
+            console.log(results)
 
         });
         
@@ -203,7 +204,7 @@ router.get('/emp_hour_details/:work_id', (req, res) => {
 
         department = req.session.dept;
 
-        conn.query('SELECT emp.emp_fn, emp.emp_ln, truncate((TIMEDIFF(wh.end_time, wh.start_time)/10000), 2) AS hours, emp.id AS emp_id, wh.*, wh.id AS work_id, dept.*, dept.id AS dept_id FROM employees emp, work_hours wh, departments dept WHERE emp.emp_dept = dept.id AND wh.emp_id = emp.id AND dept.dept_name = ? AND wh.id =' + req.params.work_id, department,(err, results) => {
+        conn.query('SELECT emp.emp_fn, emp.emp_ln, truncate((TIMEDIFF(wh.end_time, wh.start_time)/10000), 2) AS hours, truncate(SUM(overtime_hours), 2) AS total_overtime, emp.id AS emp_id, wh.*, wh.id AS work_id, dept.*, dept.id AS dept_id FROM employees emp, work_hours wh, departments dept WHERE emp.emp_dept = dept.id AND wh.emp_id = emp.id AND dept.dept_name = ? AND wh.id =' + req.params.work_id, department,(err, results) => {
             
             if(err) {
                 console.log(err)
@@ -259,7 +260,7 @@ router.post('/update_overtime/:id', (req, res) => {
 router.get('/summary/:emp_id', (req, res) => {
     department = req.session.dept;
     if(req.session.loggedin === true && req.session.position === "Supervisor") {
-        conn.query('SELECT emp.id AS emp_id, truncate(SUM(hours_worked - overtime_hours), 2) AS total_worked, truncate(SUM(overtime_hours), 2) AS total_overtime FROM employees emp, work_hours wh, departments dept WHERE emp.emp_dept = dept.id AND wh.emp_id = emp.id AND dept.dept_name = ? AND wh.emp_id =' + req.params.emp_id, department,(err, results) => {
+        conn.query('SELECT emp.id AS emp_id, truncate(SUM(hours_worked - overtime_hours), 2) AS total_worked, truncate(SUM(overtime_hours), 2) AS total_overtime FROM employees emp, work_hours wh, departments dept WHERE emp.emp_dept = dept.id AND wh.emp_id = emp.id AND dept.dept_name = ? AND wh.work_date BETWEEN CURDATE()-5 AND CURDATE() - INTERVAL 1 day AND wh.emp_id =' + req.params.emp_id, department,(err, results) => {
             console.log(err)
             console.log(results)
             if(err) {
