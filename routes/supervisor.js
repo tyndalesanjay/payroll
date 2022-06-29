@@ -128,7 +128,6 @@ router.get('/employee_update/:emp_id', (req, res) => {
                 })
             }
         });
-        
     } else {
         req.flash('error', 'Please Sign In')
         res.redirect('/login/supervisor')

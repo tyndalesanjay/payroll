@@ -37,6 +37,8 @@ router.get('/start', (req, res) => {
                res.redirect('/employee')
            }
         });
+    } else {
+        res.redirect('/login/employee')
     }
 });
 
@@ -59,7 +61,65 @@ router.get('/end', (req, res) => {
                res.redirect('/employee')
            }
         });
+    } else {
+        res.redirect('/login/employee')
     }
 });
+
+
+//Payslip---------------------------------------------------------------------
+router.get('/payslip', (req, res) => {
+    if(req.session.loggedin === true && req.session.position === "Employee") {
+
+        myVariable = req.session.emp_id
+
+        conn.query('SELECT eh.*, emp.id AS emp_id, emp.emp_fn, emp.emp_ln, emp.emp_rate FROM emp_hours eh, employees emp WHERE eh.emp_id = emp.id AND emp.id = ?', myVariable, (err, results) => {
+            if(err){
+                res.render('employees/view/payslip', {
+                    title: 'Payslip',
+                    sal: '',
+                    my_session: req.session
+                })
+            } else {
+                res.render('employees/view/payslip', {
+                    title: 'Payslip',
+                    sal: results,
+                    my_session: req.session
+                })
+            }
+        });
+    } else {
+        res.redirect('/login/employee')
+    }
+});
+
+
+//Pay Cycle
+router.post('/pay_cycle', (req, res) => {
+    if(req.session.loggedin === true && req.session.position === "Employee"){
+
+        myVariable = req.session.emp_id;
+        emp_pay_cycle = req.body.cycle
+
+        conn.query('SELECT eh.*, emp.id AS emp_id, emp.emp_fn, emp.emp_ln, emp.emp_rate FROM emp_hours eh, employees emp WHERE eh.emp_id = emp.id AND emp.id = ? AND eh.emp_pay_cycle = ?' , [myVariable, emp_pay_cycle], (err, results) => {
+            if(err){
+                res.render('employees/view/payslip', {
+                    title: 'Payslip',
+                    sal: '',
+                    my_session: req.session
+                })
+            } else {
+                res.render('employees/view/payslip', {
+                    title: 'Payslip',
+                    sal: results,
+                    my_session: req.session
+                })
+            }
+        });
+    } else{
+
+    }
+});
+
 
 module.exports = router;

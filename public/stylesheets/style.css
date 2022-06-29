@@ -11,3 +11,10 @@ body {
 a {
   color: #00B7FF;
 }
+
+.cycle {
+  border: #dadfe3 1px solid;
+  border-left: none;
+  padding: 0.6em;
+  border-radius: 0px 4px 4px 0px;
+}

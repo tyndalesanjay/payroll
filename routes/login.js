@@ -19,7 +19,7 @@ router.post('/slogin', function(req, res, next) {
             req.flash('error', 'Incorrect username or password');
             res.redirect('/login/supervisor')
         } else {
-            req.flash('success', 'SuperVisor Logged In');
+            req.flash('success', 'Supervisor Logged In');
             req.session.loggedin = true
             req.session.emp_id = results[0].emp_id,
             req.session.emp_fn = results[0].emp_fn,
@@ -58,7 +58,7 @@ router.post('/accAuth', (req, res) => {
             req.flash('error', 'Incorrect username or password');
             res.redirect('/login/accounts')
         } else {
-            req.flash('success', 'Employee Logged In');
+            req.flash('success', 'Accounts Logged In');
             req.session.loggedin = true
             req.session.emp_id = results[0].emp_id,
             req.session.emp_fn = results[0].emp_fn,
